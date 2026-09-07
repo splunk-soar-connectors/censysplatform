@@ -1,7 +1,7 @@
 # Censys for Splunk SOAR
 
 Publisher: Censys <br>
-Connector Version: 1.1.1 <br>
+Connector Version: 1.2.0 <br>
 Product Vendor: Censys <br>
 Product Name: Censys Platform <br>
 Minimum Product Version: 6.3.0

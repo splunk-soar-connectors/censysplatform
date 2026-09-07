@@ -10,11 +10,11 @@
     "product_version_regex": ".*",
     "publisher": "Censys",
     "license": "Copyright (c) 2026 Censys",
-    "app_version": "1.1.1",
+    "app_version": "1.2.0",
     "latest_tested_versions": [
         "Censys Platform API v3"
     ],
-    "utctime_updated": "2026-09-03T15:20:32.006371Z",
+    "utctime_updated": "2026-09-07T11:02:24.752809Z",
     "package_name": "phantom_censysplatform",
     "main_module": "censysplatform_connector.py",
     "app_config_render": "default",

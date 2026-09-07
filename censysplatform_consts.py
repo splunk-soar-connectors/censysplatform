@@ -22,6 +22,7 @@ CENSYSPLATFORM_CENS_EYE_DEFAULT_WAIT_TIMEOUT_SECONDS = 300
 # Action identifiers
 ACTION_ID_TEST_CONNECTIVITY = "test_connectivity"
 ACTION_ID_LOOKUP_HOST = "lookup_host"
+ACTION_ID_LOOKUP_HOST_ENRICHMENT = "lookup_host_enrichment"
 ACTION_ID_LOOKUP_CERT = "lookup_cert"
 ACTION_ID_LOOKUP_WEB_PROPERTY = "lookup_web_property"
 ACTION_ID_SEARCH = "search"

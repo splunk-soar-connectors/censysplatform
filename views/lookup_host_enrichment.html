@@ -48,9 +48,15 @@
     text-align: left;
     white-space: nowrap;
   }
+  .censys-multiline div {
+    margin-bottom: 4px;
+  }
+  .censys-multiline div:last-child {
+    margin-bottom: 0;
+  }
   </style>
   {% for result in results %}
-    <h4>Host Lookup</h4>
+    <h4>Host Enrichment Lookup</h4>
     <table class="wf-table-vertical datatable censys-kv">
       <tr>
         <td>
@@ -174,12 +180,6 @@
       </tr>
       <tr>
         <td>
-          <b>Service Vulnerabilities</b>
-        </td>
-        <td>{{ result.service_vulns|join:", " }}</td>
-      </tr>
-      <tr>
-        <td>
           <b>Service Scan Times</b>
         </td>
         <td>{{ result.service_scan_times|join:", " }}</td>
@@ -196,7 +196,73 @@
         </td>
         <td>{{ result.reputation.score_display }}</td>
       </tr>
+      <tr>
+        <td>
+          <b>Reputation Model Version</b>
+        </td>
+        <td>{{ result.reputation.model_version|default_if_none:"Not reported" }}</td>
+      </tr>
+      <tr>
+        <td>
+          <b>GreyNoise Classification</b>
+        </td>
+        <td>
+          {{ result.greynoise.classification|default_if_none:"Not reported" }}
+          {% if result.greynoise.actor %}&mdash; {{ result.greynoise.actor }}{% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>GreyNoise Last Observed</b>
+        </td>
+        <td>{{ result.greynoise.last_observed_time|default_if_none:"Not reported" }}</td>
+      </tr>
+      <tr>
+        <td>
+          <b>Privacy</b>
+        </td>
+        <td>
+          Anonymous: {{ result.privacy.anonymous|default_if_none:"Unknown" }},
+          Proxy: {{ result.privacy.proxy|default_if_none:"Unknown" }},
+          Relay: {{ result.privacy.relay|default_if_none:"Unknown" }},
+          Tor: {{ result.privacy.tor|default_if_none:"Unknown" }},
+          VPN: {{ result.privacy.vpn|default_if_none:"Unknown" }}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Network</b>
+        </td>
+        <td>
+          Hosting: {{ result.network.hosting|default_if_none:"Unknown" }},
+          Mobile: {{ result.network.mobile|default_if_none:"Unknown" }},
+          Satellite: {{ result.network.satellite|default_if_none:"Unknown" }}
+        </td>
+      </tr>
     </table>
+    {% if result.reputation.evidence %}
+      <h4>Reputation Evidence</h4>
+      <table class="wf-table-horizontal datatable censys-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Value</th>
+            <th>Contribution</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for evidence in result.reputation.evidence %}
+            <tr>
+              <td>{{ evidence.name|default_if_none:"" }}</td>
+              <td>{{ evidence.value|default_if_none:"" }}</td>
+              <td>{{ evidence.contribution|default_if_none:"" }}</td>
+              <td>{{ evidence.category|default_if_none:"" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
     {% if result.services %}
       <h4>Services</h4>
       <table class="wf-table-horizontal datatable censys-table">
@@ -204,8 +270,9 @@
           <tr>
             <th>Port</th>
             <th>Protocol</th>
-            <th>Transport</th>
             <th>Scan Time</th>
+            <th>Labels</th>
+            <th>Threats</th>
           </tr>
         </thead>
         <tbody>
@@ -213,8 +280,38 @@
             <tr>
               <td>{{ service.port }}</td>
               <td>{{ service.protocol }}</td>
-              <td>{{ service.transport_protocol }}</td>
               <td>{{ service.scan_time }}</td>
+              <td>{{ service.labels|join:", " }}</td>
+              <td>{{ service.threat_names|join:", " }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+    {% if result.third_party_records %}
+      <h4>Third Party Threat Intelligence</h4>
+      <table class="wf-table-horizontal datatable censys-table">
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Observable</th>
+            <th>Observable UUID</th>
+            <th>Opinion Sources</th>
+            <th>Verdicts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in result.third_party_records %}
+            <tr>
+              <td>{{ record.provider }}</td>
+              <td>{{ record.observable_name }}</td>
+              <td>{{ record.observable_uuid }}</td>
+              <td class="censys-multiline">
+                {% for opinion in record.opinions %}<div>{{ opinion.source }}</div>{% endfor %}
+              </td>
+              <td class="censys-multiline">
+                {% for opinion in record.opinions %}<div>{{ opinion.verdict }}</div>{% endfor %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

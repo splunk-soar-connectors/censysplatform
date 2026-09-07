@@ -117,6 +117,194 @@
                     ]
                 },
                 {
+                    "data_path": "action_result.data.*.service_count",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.is_truncated_host",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.autonomous_system.asn",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.autonomous_system.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.actor",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.classification",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.last_observed_time",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.dns.names",
+                    "data_type": "string",
+                    "contains": [
+                        "domain"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dns.reverse_dns.names",
+                    "data_type": "string",
+                    "contains": [
+                        "domain"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.whois.network.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.whois.network.cidrs",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.city",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.province",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.postal_code",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.country",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.country_code",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.continent",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.location.coordinates.latitude",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.location.coordinates.longitude",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.labels.*.value",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score_level",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.label",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.model_version",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score_suppressed",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.class_probabilities.*.label",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.class_probabilities.*.probability",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.category",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.evidence_score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.value",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.contribution",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.category",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.port",
+                    "data_type": "numeric",
+                    "contains": [
+                        "port"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.protocol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.transport_protocol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.scan_time",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.banner",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.labels.*.value",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.threats.*.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.vulns.*.id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.vulns.*.severity",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.services.*.cert.fingerprint_sha256",
+                    "data_type": "string",
+                    "contains": [
+                        "sha256"
+                    ]
+                },
+                {
                     "data_path": "action_result.summary.ip",
                     "data_type": "string",
                     "contains": [
@@ -136,6 +324,18 @@
                 },
                 {
                     "data_path": "action_result.summary.scan_time",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.reputation_score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.summary.reputation_level",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.greynoise_classification",
                     "data_type": "string"
                 },
                 {
@@ -159,6 +359,213 @@
                 "type": "custom",
                 "view": "censysplatform_view.display_host",
                 "title": "Host Lookup Results"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "lookup host enrichment",
+            "identifier": "lookup_host_enrichment",
+            "description": "Retrieve enrichment data for a single host by IPv4 or IPv6 address",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "ip": {
+                    "data_type": "string",
+                    "description": "IPv4 or IPv6 address for lookup",
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "ip"
+                    ],
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.ip",
+                    "data_type": "string",
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ip",
+                    "data_type": "string",
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.autonomous_system.asn",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.autonomous_system.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.actor",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.classification",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.greynoise.last_observed_time",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score_level",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.label",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.model_version",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.score_suppressed",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.class_probabilities.*.label",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.class_probabilities.*.probability",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.value",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.contribution",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.reputation.evidence.*.feature.category",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.privacy.*.anonymous",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.privacy.*.proxy",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.privacy.*.tor",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.privacy.*.vpn",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.privacy.*.relay",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.network.*.hosting",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.network.*.mobile",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.network.*.satellite",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.third_party.mallory.*.observable.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.third_party.mallory.*.observable.uuid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.third_party.mallory.*.opinions.*.source",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.third_party.mallory.*.opinions.*.verdict",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.ip",
+                    "data_type": "string",
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.service_count",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.summary.ports",
+                    "data_type": "string",
+                    "contains": [
+                        "port"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.scan_time",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.reputation_score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.summary.reputation_level",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.greynoise_classification",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "custom",
+                "view": "censysplatform_view.display_host_enrichment",
+                "title": "Host Enrichment Lookup Results"
             },
             "versions": "EQ(*)"
         },
@@ -1100,11 +1507,11 @@
             },
             {
                 "module": "anyio",
-                "input_file": "wheels/py3/anyio-4.14.2-py3-none-any.whl"
+                "input_file": "wheels/py3/anyio-4.15.0-py3-none-any.whl"
             },
             {
                 "module": "censys_platform",
-                "input_file": "wheels/py3/censys_platform-0.13.2-py3-none-any.whl"
+                "input_file": "wheels/py3/censys_platform-0.16.1-py3-none-any.whl"
             },
             {
                 "module": "h11",
@@ -1120,11 +1527,11 @@
             },
             {
                 "module": "pydantic",
-                "input_file": "wheels/py3/pydantic-2.13.4-py3-none-any.whl"
+                "input_file": "wheels/py3/pydantic-2.13.5-py3-none-any.whl"
             },
             {
                 "module": "pydantic_core",
-                "input_file": "wheels/py313/pydantic_core-2.46.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+                "input_file": "wheels/py313/pydantic_core-2.46.5-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
             },
             {
                 "module": "typing_extensions",

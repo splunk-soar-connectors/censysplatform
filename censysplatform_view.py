@@ -76,6 +76,118 @@ def _normalize_display_list(values: Any, preferred_keys: tuple[str, ...] = ()) -
     return normalized
 
 
+def _flags_from_list(items: Any, keys: tuple[str, ...]) -> dict[str, bool | None]:
+    """Collapse a list of classification dicts into host-level boolean flags.
+
+    A key absent from every row means the source never made a claim either way, and is
+    reported as None so the widget can distinguish "not asserted" from an asserted False.
+    """
+    rows = [item for item in _ensure_list(items) if isinstance(item, dict)]
+    flags: dict[str, bool | None] = {}
+    for key in keys:
+        asserted = [row.get(key) for row in rows if row.get(key) is not None]
+        flags[key] = any(bool(value) for value in asserted) if asserted else None
+    return flags
+
+
+def _reputation_level(host: dict[str, Any]) -> Any:
+    """Reputation verdict, which responses carry as either `score_level` or `label`."""
+    return _safe_get(host, "reputation.score_level") or _safe_get(host, "reputation.label")
+
+
+def _score_display(value: Any) -> Any:
+    """Scale the 0-1 reputation score to a whole number for display, truncating the remainder.
+
+    The raw decimal stays in `action_result.data`; only the widget cell is scaled, so 0.647
+    reads as 64. Anything non-numeric passes through untouched.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return value
+    return int(value * 100)
+
+
+def _reputation_label_display(host: dict[str, Any]) -> str:
+    """Render the reputation verdict on its own, separate from the score."""
+    score_level = _reputation_level(host)
+    return str(score_level) if score_level else "Unknown"
+
+
+def _reputation_score_display(host: dict[str, Any]) -> str:
+    """Render the reputation score on its own. A score of 0 is meaningful, so test for None."""
+    score = _safe_get(host, "reputation.score")
+    if score is None:
+        return "Not reported"
+    # A suppressed score is still reported, so say so rather than presenting it as a verdict.
+    suffix = " (suppressed)" if _safe_get(host, "reputation.score_suppressed") else ""
+    return f"{_score_display(score)}{suffix}"
+
+
+def _build_reputation(host: dict[str, Any]) -> dict[str, Any]:
+    """Reputation fields for the widget: raw values for playbooks, display strings for cells."""
+    return {
+        "score": _safe_get(host, "reputation.score"),
+        "score_level": _reputation_level(host),
+        "model_version": _safe_get(host, "reputation.model_version"),
+        "score_suppressed": _safe_get(host, "reputation.score_suppressed"),
+        "label_display": _reputation_label_display(host),
+        "score_display": _reputation_score_display(host),
+    }
+
+
+def _round_display(value: Any, places: int = 2) -> Any:
+    """Shorten a float for display, leaving anything non-numeric untouched."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return value
+    return round(value, places)
+
+
+def _reputation_evidence_rows(host: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten reputation evidence into rows, preserving the API's contribution ordering.
+
+    An entry scores one model feature under `feature`, and may also carry the aggregate
+    `category`/`evidence_score` pair alongside it. Whichever the response populates
+    collapses into a single row, feature values taking precedence.
+
+    An entry's `threats`, `external_signals`, and `additional_fields` are not rendered; they
+    remain in `action_result.data` for playbooks.
+    """
+    rows = []
+    for entry in _ensure_list(_safe_get(host, "reputation.evidence")):
+        if not isinstance(entry, dict):
+            continue
+
+        feature = entry.get("feature") if isinstance(entry.get("feature"), dict) else {}
+        contribution = feature.get("contribution")
+        if contribution is None:
+            contribution = entry.get("evidence_score")
+
+        row = {
+            "name": feature.get("name") or feature.get("id"),
+            "value": _to_display_string(feature.get("value")),
+            "contribution": _round_display(contribution),
+            "category": feature.get("category") or entry.get("category"),
+        }
+        if all(field is None for field in row.values()):
+            continue
+        rows.append(row)
+    return rows
+
+
+def _forward_dns_names(host: dict[str, Any]) -> list[str]:
+    """Collect names from dns.forward_dns, which is a map keyed by hostname."""
+    forward_dns = _safe_get(host, "dns.forward_dns")
+    if not isinstance(forward_dns, dict):
+        return []
+
+    names = []
+    for key, resolution in forward_dns.items():
+        name = resolution.get("name") if isinstance(resolution, dict) else None
+        display_name = _to_display_string(name if name is not None else key)
+        if display_name is not None:
+            names.append(display_name)
+    return names
+
+
 def _iter_action_results(all_app_runs: Any):
     """Yield action result objects from SOAR all_app_runs safely."""
     if all_app_runs is None:
@@ -172,10 +284,7 @@ def _build_host_result(host: dict[str, Any], services: list[dict[str, Any]] | No
     host_labels = _normalize_display_list(host.get("labels"), ("value", "name", "label"))
     dns_names = _normalize_display_list(_safe_get(host, "dns.names", []), ("name", "value"))
 
-    forward_dns_names = []
-    for fdns in _ensure_list(_safe_get(host, "dns.forward_dns", [])):
-        if isinstance(fdns, dict):
-            forward_dns_names.extend(_normalize_display_list(fdns.get("names"), ("name", "value")))
+    forward_dns_names = _forward_dns_names(host)
 
     reverse_dns_names = _normalize_display_list(_safe_get(host, "dns.reverse_dns.names", []), ("name", "value"))
 
@@ -191,6 +300,7 @@ def _build_host_result(host: dict[str, Any], services: list[dict[str, Any]] | No
         "service_labels": service_labels,
         "service_threat_names": service_threat_names,
         "service_vulns": service_vulns,
+        "reputation": _build_reputation(host),
         "dns_names": dns_names,
         "forward_dns_names": forward_dns_names,
         "reverse_dns_names": reverse_dns_names,
@@ -212,6 +322,122 @@ def _build_host_result(host: dict[str, Any], services: list[dict[str, Any]] | No
             "longitude": coordinates.get("longitude"),
         },
     }
+
+
+def _build_host_enrichment_result(host: dict[str, Any], services: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    services = _ensure_list(services if services is not None else host.get("services"))
+
+    service_rows = []
+    service_labels = []
+    service_threat_names = []
+    service_scan_times = []
+
+    for svc in services:
+        if not isinstance(svc, dict):
+            continue
+
+        service_rows.append(
+            {
+                "port": svc.get("port"),
+                "protocol": svc.get("protocol"),
+                "scan_time": svc.get("scan_time"),
+                "labels": _normalize_display_list(svc.get("labels"), ("value", "name", "label")),
+                "threat_names": _normalize_display_list(svc.get("threats"), ("name", "value", "id")),
+            }
+        )
+
+        if svc.get("scan_time") is not None:
+            service_scan_times.append(str(svc.get("scan_time")))
+
+        service_labels.extend(_normalize_display_list(svc.get("labels"), ("value", "name", "label")))
+        service_threat_names.extend(_normalize_display_list(svc.get("threats"), ("name", "value", "id")))
+
+    host_labels = _normalize_display_list(host.get("labels"), ("value", "name", "label"))
+    dns_names = _normalize_display_list(_safe_get(host, "dns.names", []), ("name", "value"))
+
+    forward_dns_names = _forward_dns_names(host)
+
+    reverse_dns_names = _normalize_display_list(_safe_get(host, "dns.reverse_dns.names", []), ("name", "value"))
+
+    location = host.get("location") if isinstance(host.get("location"), dict) else {}
+    coordinates = location.get("coordinates") if isinstance(location.get("coordinates"), dict) else {}
+
+    return {
+        "ip": host.get("ip"),
+        "service_count": host.get("service_count"),
+        "services": service_rows,
+        "service_scan_times": service_scan_times,
+        "host_labels": host_labels,
+        "service_labels": service_labels,
+        "service_threat_names": service_threat_names,
+        "dns_names": dns_names,
+        "forward_dns_names": forward_dns_names,
+        "reverse_dns_names": reverse_dns_names,
+        "whois_network_name": _safe_get(host, "whois.network.name"),
+        "whois_network_cidrs": _normalize_display_list(
+            _safe_get(host, "whois.network.cidrs", []),
+            ("cidr", "value", "name", "id"),
+        ),
+        "autonomous_system_name": _safe_get(host, "autonomous_system.name"),
+        "autonomous_system_asn": _safe_get(host, "autonomous_system.asn"),
+        "location": {
+            "city": location.get("city"),
+            "province": location.get("province"),
+            "postal_code": location.get("postal_code"),
+            "country": location.get("country"),
+            "country_code": location.get("country_code"),
+            "continent": location.get("continent"),
+            "latitude": coordinates.get("latitude"),
+            "longitude": coordinates.get("longitude"),
+        },
+        # --- enrichment-specific fields (not present on a plain host) ---
+        "greynoise": {
+            "actor": _safe_get(host, "greynoise.actor"),
+            "classification": _safe_get(host, "greynoise.classification"),
+            "last_observed_time": _safe_get(host, "greynoise.last_observed_time"),
+        },
+        "reputation": {
+            **_build_reputation(host),
+            "evidence": _reputation_evidence_rows(host),
+        },
+        "privacy": _flags_from_list(host.get("privacy"), ("anonymous", "proxy", "relay", "tor", "vpn")),
+        "network": _flags_from_list(host.get("network"), ("hosting", "mobile", "satellite")),
+        "third_party_records": _build_third_party_rows(host),
+    }
+
+
+def _build_third_party_rows(host: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten third-party threat intel records into provider/observable/opinion rows.
+
+    The providers under `third_party` (mallory, ...) are an open set and each may carry
+    its own fields, so every provider is walked generically and only the shared fields
+    the widget targets are surfaced. Providers missing them render blank rather than
+    breaking the widget.
+    """
+    third_party = host.get("third_party")
+    if not isinstance(third_party, dict):
+        return []
+
+    rows = []
+    for provider, records in sorted(third_party.items()):
+        for record in _ensure_list([records] if isinstance(records, dict) else records):
+            if not isinstance(record, dict):
+                continue
+
+            observable = record.get("observable") if isinstance(record.get("observable"), dict) else {}
+            rows.append(
+                {
+                    "provider": provider,
+                    "observable_name": observable.get("name"),
+                    "observable_uuid": observable.get("uuid"),
+                    "opinions": [
+                        {"source": opinion.get("source"), "verdict": opinion.get("verdict")}
+                        for opinion in _ensure_list(record.get("opinions"))
+                        if isinstance(opinion, dict)
+                    ],
+                }
+            )
+    return rows
 
 
 def _build_web_property_result(web_property: dict[str, Any]) -> dict[str, Any]:
@@ -421,6 +647,23 @@ def display_host(provides, all_app_runs, context):
             continue
 
     return "views/lookup_host.html"
+
+
+def display_host_enrichment(provides, all_app_runs, context):
+    _ = provides
+    context["results"] = results = []
+
+    for result in _iter_action_results(all_app_runs):
+        d = _first_data_dict(result)
+        if not isinstance(d, dict):
+            continue
+
+        try:
+            results.append(_build_host_enrichment_result(d))
+        except Exception:
+            continue
+
+    return "views/lookup_host_enrichment.html"
 
 
 def display_cert(provides, all_app_runs, context):
